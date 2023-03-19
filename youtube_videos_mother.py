@@ -44,7 +44,9 @@ def extract_links(credential_path=gsheet_credentials_path) -> pd.DataFrame:
                                            'Paid?'])[["Nombre sin espacios", "Link del video", "Status"]]
     return links_df.loc[links_df['Status'] == 'Not DONE']
 
-def download_video(video_url, output_folder):
+
+def download_video(video_url: str, output_folder: str) -> None:
+    """""" #TODO update docstring and os library
     # Create output folder if it doesn't exist
     if not os.path.exists(output_folder):
         os.makedirs(output_folder)
@@ -61,3 +63,7 @@ def download_video(video_url, output_folder):
         ydl.download([video_url])
 
     print(f"Video saved to {output_folder}")
+
+# TODO Create Video Class
+# TODO Create subtitles function
+# Manage a robust bucle
