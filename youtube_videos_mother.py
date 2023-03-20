@@ -198,4 +198,30 @@ def produce_srt_timestamp(start: float, duration: float) -> tuple[str, str]:
     srt_end_timestamp = end_datetime.strftime("%H:%M:%S,%f")[:-3]
     return srt_start_timestamp, srt_end_timestamp
 
-# TODO Manage a robust bucle
+
+def embed_subtitle(video: Video) -> None:
+    """
+    Function that given the video and subtitles embeds them
+    into a single video and returns the video with the
+    subtitles in it. It relies on ffmpeg, library installed
+    in the terminal and uses subprocess to run command in
+    terminal
+
+    Args:
+        video: instantiated video object
+    """
+    # Change output file name
+    output_path = video.output_path\
+                 .joinpath(video.downloaded_video_path.name)\
+                 .as_posix().replace(".mp4",'_final.mp4')
+
+    # Run FFmpeg command to embed subtitles
+    subprocess.run([
+        'ffmpeg',
+        '-i', video.downloaded_video_path.as_posix(),
+        '-vf', f'subtitles={video.downloaded_subtitles_path.as_posix()}',
+        '-c:a', 'copy',
+        '-c:s', 'mov_text',
+        '-preset', 'ultrafast',
+        output_path
+    ], check=True)
