@@ -6,7 +6,9 @@ import youtube_transcript_api
 import gspread
 import pandas as pd
 from oauth2client.service_account import ServiceAccountCredentials
-from extra_data import gsheet_credentials_path
+from youtube_transcript_api import YouTubeTranscriptApi, NoTranscriptFound
+from googletrans import Translator
+from extra_data import gsheet_credentials_path, downloads_path
 import yt_dlp
 from pathlib import Path
 
@@ -73,10 +75,43 @@ def download_video(video_url: str, output_folder: Path) -> None:
 
     # Download video
     with yt_dlp.YoutubeDL(ydl_opts) as ydl:
-        ydl.download([video_url])
+        ydl.download([video.url])
 
-    print(f"Video saved to {output_folder}")
+    print(f"Video {video.name} saved to {video.folder_video_path}")
 
-# TODO Create Video Class
-# TODO Create subtitles function
+
+def download_subtitles(video: Video) -> None:
+    """
+    Function that downloads subtitles for a given video. First try to
+    download them in spanish, if not possible, download them in english
+    and properly translate them later.
+
+    Args:
+        video: Instantiated video object
+    """
+    transcript_list = YouTubeTranscriptApi.list_transcripts(video.video_id)
+    # Try to get Spanish subtitles
+    try:
+        srt_captions = transcript_list.find_generated_transcript(['es'])
+    except NoTranscriptFound:
+        print(f"Couldn't download spanish subtitles for {video.name}, trying english and translating")
+        srt_captions = None
+
+    # Get English subtitles and translate them to Spanish
+    if srt_captions is None:
+        try:
+            srt_captions = transcript_list.find_generated_transcript(['en']).translate('es').fetch()
+        except Exception:
+            raise ValueError('No subtitles available for this video')
+
+    # Generate SRT captions file
+    with open(video.downloaded_subtitles_path, 'w', encoding='utf-8') as f:
+        for i, caption in enumerate(srt_captions):
+            f.write(str(i + 1) + '\n')
+            f.write(f"{caption['start']} --> {caption['start'] + caption['duration']}\n")
+            f.write(caption['text'] + '\n\n')
+
+    print(f"Video {video.name} subtitles downloaded successfully")
+
+# TODO Create function to embed subtitles and video
 # TODO Manage a robust bucle
