@@ -65,6 +65,22 @@ class Video:
                              string=self.url).group(1)
         return video_id
 
+    @staticmethod
+    def create_folder_final_videos() -> Path:
+        """
+        Function that creates an output video folder for the
+        videos with embedded subtitles if it doesn't exist,
+        and returns its path.
+
+        Returns:
+            final_folder_path: Path for the final folder
+        """
+        today_str = date.today().strftime("Videos_%d_%m_%Y")
+        final_folder_path = Path(downloads_path).joinpath(today_str)
+        if not final_folder_path.exists():
+            final_folder_path.mkdir(parents=True, exist_ok=True)
+        return final_folder_path
+
 
 def extract_links(credential_path=gsheet_credentials_path) -> pd.DataFrame:
     """
