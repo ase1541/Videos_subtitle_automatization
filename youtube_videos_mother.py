@@ -84,7 +84,8 @@ class Video:
 
 def extract_links(credential_path=gsheet_credentials_path) -> pd.DataFrame:
     """
-
+    Function that connects to the google sheets containing the links,
+    and downloads its information as a dataframe.
     Args:
         credential_path: Path to the Gsheet credentials. Remember for next time,
         you need to create an application, then add drive and gsheets apis,
@@ -174,10 +175,31 @@ def download_subtitles(video: Video) -> None:
     with open(video.downloaded_subtitles_path, 'w', encoding='utf-8') as f:
         for i, caption in enumerate(srt_captions):
             f.write(str(i + 1) + '\n')
-            f.write(f"{caption['start']} --> {caption['start'] + caption['duration']}\n")
+            start, end = produce_srt_timestamp(start=caption['start'], duration=caption['duration'])
+            f.write(f"{start} --> {end}\n")
             f.write(caption['text'] + '\n\n')
 
     print(f"Video {video.name} subtitles downloaded successfully")
 
-# TODO Create function to embed subtitles and video
+
+def produce_srt_timestamp(start: float, duration: float) -> tuple[str, str]:
+    """
+    Function that takes a start and a duration in seconds as a float and
+    returns a suitable outcome to build the srt file. The output has to
+    be in "%H:%M:%S,%f" format.
+    Args:
+        start: second caption starts in seconds
+        duration: duration of the caption in screen in seconds
+
+    Returns:
+        srt_start_timestamp: string with adequate start timestamp for srt file
+        srt_end_timestamp: string with adequate end timestamp for srt file
+    """
+    start_datetime = datetime.strptime('00:00:00', '%H:%M:%S')
+    start_datetime = start_datetime + timedelta(seconds=start)
+    end_datetime = start_datetime + timedelta(seconds=duration)
+    srt_start_timestamp = start_datetime.strftime("%H:%M:%S,%f")
+    srt_end_timestamp = end_datetime.strftime("%H:%M:%S,%f")
+    return srt_start_timestamp, srt_end_timestamp
+
 # TODO Manage a robust bucle
