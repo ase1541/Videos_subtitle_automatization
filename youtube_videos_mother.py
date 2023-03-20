@@ -8,6 +8,7 @@ import pandas as pd
 from oauth2client.service_account import ServiceAccountCredentials
 from extra_data import gsheet_credentials_path
 import yt_dlp
+from pathlib import Path
 
 
 def extract_links(credential_path=gsheet_credentials_path) -> pd.DataFrame:
@@ -54,7 +55,7 @@ def download_video(video_url: str, output_folder: str) -> None:
     # Set options for video download
     ydl_opts = {
         'format': 'bestvideo[height<=720]+bestaudio/best[height<=720]',
-        'outtmpl': os.path.join(output_folder, '%(title)s.%(ext)s'),
+        'outtmpl': output_folder.joinpath('%(title)s.%(ext)s'),
         'merge_output_format': 'mp4',
     }
 
