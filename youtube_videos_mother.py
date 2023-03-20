@@ -46,11 +46,23 @@ def extract_links(credential_path=gsheet_credentials_path) -> pd.DataFrame:
     return links_df.loc[links_df['Status'] == 'Not DONE']
 
 
-def download_video(video_url: str, output_folder: str) -> None:
-    """""" #TODO update docstring and os library
-    # Create output folder if it doesn't exist
-    if not os.path.exists(output_folder):
-        os.makedirs(output_folder)
+def download_video(video_url: str, output_folder: Path) -> None:
+    """
+    Function that downloads a video given an url and an output
+    folder. It gets downloaded in .mp4 format in the provided
+    folder.
+    Args:
+        video_url: Url of the video to download
+        output_folder: Path to the folder where we want to
+        download the video
+
+    Returns:
+
+    """
+
+    # Create the directory if it doesn't already exist
+    if not output_folder.exists():
+        output_folder.mkdir(parents=True, exist_ok=True)
 
     # Set options for video download
     ydl_opts = {
@@ -67,4 +79,4 @@ def download_video(video_url: str, output_folder: str) -> None:
 
 # TODO Create Video Class
 # TODO Create subtitles function
-# Manage a robust bucle
+# TODO Manage a robust bucle
