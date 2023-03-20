@@ -1,18 +1,14 @@
-import os
 import ffmpeg
-from pytube import YouTube
-import pytube
-import youtube_transcript_api
 import gspread
 import pandas as pd
 from oauth2client.service_account import ServiceAccountCredentials
 from youtube_transcript_api import YouTubeTranscriptApi, NoTranscriptFound
-from googletrans import Translator
 from extra_data import gsheet_credentials_path, downloads_path
 import yt_dlp
 from pathlib import Path
 import regex as re
-import os
+from datetime import datetime, timedelta, date
+import shutil
 
 
 class Video:
