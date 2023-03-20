@@ -11,6 +11,42 @@ from googletrans import Translator
 from extra_data import gsheet_credentials_path, downloads_path
 import yt_dlp
 from pathlib import Path
+import regex as re
+import os
+
+
+class Video:
+    """
+    Class used to encapsulte all the information related to the
+    youtube videos. Every video has a name, a url an from there,
+    we get the video id and the path were we will be storing it.
+    """
+    videos_list = []
+
+    def __init__(self, url, name):
+        # Passed through innit
+        self.url = url
+        self.name = name
+
+        # Obtained attributes
+        self.video_id = self.get_video_id()
+        self.folder_video_path = Path(downloads_path).joinpath(self.name)
+        self.downloaded_video_path = self.folder_video_path.joinpath(self.name + ".mp4")
+        self.downloaded_subtitles_path = self.folder_video_path.joinpath(self.name + ".srt")
+        Video.videos_list.append(self)  # Store instances in list
+
+    def get_video_id(self) -> str:
+        """
+        Function that takes the video url and returns
+        the video id for the get subtitles function
+
+        Returns:
+            video_id: string for the video id
+        """
+        pattern = r'watch\?v=([^&]*)'
+        video_id = re.search(pattern=pattern,
+                             string=self.url).group(1)
+        return video_id
 
 
 def extract_links(credential_path=gsheet_credentials_path) -> pd.DataFrame:
