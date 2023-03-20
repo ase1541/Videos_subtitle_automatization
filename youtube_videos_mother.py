@@ -17,8 +17,8 @@ import os
 
 class Video:
     """
-    Class used to encapsulte all the information related to the
-    youtube videos. Every video has a name, a url an from there,
+    Class used to encapsulate all the information related to the
+    YouTube videos. Every video has a name, an url and from there,
     we get the video id and the path were we will be storing it.
     """
     videos_list = []
@@ -31,9 +31,26 @@ class Video:
         # Obtained attributes
         self.video_id = self.get_video_id()
         self.folder_video_path = Path(downloads_path).joinpath(self.name)
+        self.output_path = self.create_folder_final_videos()
         self.downloaded_video_path = self.folder_video_path.joinpath(self.name + ".mp4")
         self.downloaded_subtitles_path = self.folder_video_path.joinpath(self.name + ".srt")
         Video.videos_list.append(self)  # Store instances in list
+
+    def __del__(self):
+        """Erase folder with raw videos upon completion"""
+        shutil.rmtree(self.folder_video_path)
+
+    @classmethod
+    def initialize_video_instances(cls, df_links: pd.DataFrame) -> None:
+        """
+        Class method that enables the initialization of all the Video
+        objects needed.
+        Args:
+            df_links: dataframe with names and links to the videos
+        """
+        for index, row in df_links.iterrows():
+            Video(url=row["Link del video"],
+                  name=row["Nombre sin espacios"])
 
     def get_video_id(self) -> str:
         """
