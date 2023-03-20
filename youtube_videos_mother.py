@@ -30,6 +30,7 @@ class Video:
         self.output_path = self.create_folder_final_videos()
         self.downloaded_video_path = self.folder_video_path.joinpath(self.name + ".mp4")
         self.downloaded_subtitles_path = self.folder_video_path.joinpath(self.name + ".srt")
+        self.successfully_downloaded = False
         Video.videos_list.append(self)  # Store instances in list
 
     def __del__(self):
@@ -122,7 +123,6 @@ def download_video(video: Video) -> None:
 
     Args:
         video: Instantiated video object
-
     """
 
     # Create the directory if it doesn't already exist
@@ -155,7 +155,7 @@ def download_subtitles(video: Video) -> None:
     transcript_list = YouTubeTranscriptApi.list_transcripts(video.video_id)
     # Try to get Spanish subtitles
     try:
-        srt_captions = transcript_list.find_generated_transcript(['es'])
+        srt_captions = transcript_list.find_transcript(['es']).fetch()
     except NoTranscriptFound:
         print(f"Couldn't download spanish subtitles for {video.name}, trying english and translating")
         srt_captions = None
@@ -163,7 +163,7 @@ def download_subtitles(video: Video) -> None:
     # Get English subtitles and translate them to Spanish
     if srt_captions is None:
         try:
-            srt_captions = transcript_list.find_generated_transcript(['en']).translate('es').fetch()
+            srt_captions = transcript_list.find_transcript(['en']).translate('es').fetch()
         except Exception:
             raise ValueError('No subtitles available for this video')
 
@@ -194,8 +194,8 @@ def produce_srt_timestamp(start: float, duration: float) -> tuple[str, str]:
     start_datetime = datetime.strptime('00:00:00', '%H:%M:%S')
     start_datetime = start_datetime + timedelta(seconds=start)
     end_datetime = start_datetime + timedelta(seconds=duration)
-    srt_start_timestamp = start_datetime.strftime("%H:%M:%S,%f")
-    srt_end_timestamp = end_datetime.strftime("%H:%M:%S,%f")
+    srt_start_timestamp = start_datetime.strftime("%H:%M:%S,%f")[:-3]  # Dirty solution to trim in miliseconds
+    srt_end_timestamp = end_datetime.strftime("%H:%M:%S,%f")[:-3]
     return srt_start_timestamp, srt_end_timestamp
 
 # TODO Manage a robust bucle
