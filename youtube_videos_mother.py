@@ -1,4 +1,3 @@
-import ffmpeg
 import gspread
 import pandas as pd
 from oauth2client.service_account import ServiceAccountCredentials
@@ -9,6 +8,7 @@ from pathlib import Path
 import regex as re
 from datetime import datetime, timedelta, date
 import shutil
+import subprocess
 
 
 class Video:
